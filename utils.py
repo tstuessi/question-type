@@ -32,7 +32,10 @@ def most_popular_words(data: pd.DataFrame, column: str,
     transformed_df = pd.DataFrame(transformed_values, columns=mlb.classes_)
 
     plt.rc('font', size=15)
+
+    # switch based on whether or not we are grouping by a column
     if grouping_col is not None:
+        # include grouping column
         transformed_df[grouping_col] = data[grouping_col]
         return _plot_grouped_popular_words(n, transformed_df, column, grouping_col, stop_words)
     else:
@@ -40,10 +43,21 @@ def most_popular_words(data: pd.DataFrame, column: str,
     plt.show()
 
 def _plot_single_popular_words(n: int, transformed_df: pd.DataFrame, column: str, stop_words: List[str]):
+    """Helper function to plot the most popular words, ungrouped
+
+    Args:
+        n (int): Number of words
+        transformed_df (pd.DataFrame): Output of multiLabelBinarizer
+        column (str): Column to examine
+        stop_words (List[str]): Stop words
+    """
+    # generate the sums for each word and sort them
     sums = transformed_df.sum(axis=0)
     sums = sums.drop(stop_words)
     sums_sorted = sums.sort_values(ascending=False)
 
+    # plot the n most popular words horizontally, inverting the y axis to 
+    # make it look better
     plt.figure(figsize=(10,7))
     ax = sums_sorted.head(n).plot(kind="barh")
     ax.invert_yaxis()
@@ -51,6 +65,16 @@ def _plot_single_popular_words(n: int, transformed_df: pd.DataFrame, column: str
     plt.title(f"{n} Most popular words in {column}")
 
 def _plot_grouped_popular_words(n: int, transformed_df: pd.DataFrame, column: str, grouping_col: str, stop_words: List[str]):
+    """Plot the most popular words by group. Helper function.
+
+    Args:
+        n (int): Number of words to show
+        transformed_df (pd.DataFrame): Output of MultiLabelBinarizer
+        column (str): Column we are examining
+        grouping_col (str): Column to group by
+        stop_words (List[str]): Stop words
+    """
+    # for each group, calculate the number of times each word is used
     plot_list = []
     for name, group in transformed_df.groupby(grouping_col):
         sums = group.sum(axis=0)
@@ -68,6 +92,7 @@ def _plot_grouped_popular_words(n: int, transformed_df: pd.DataFrame, column: st
 
     colormap = plt.cm.tab10
 
+    # plot each group in a subplot
     for i, val in enumerate(plot_list):
         current_ax = fig.add_subplot(spec[i // 2, i % 2])
         val[1].plot(kind="barh", ax=current_ax, label=val[0], color=colormap(i))
