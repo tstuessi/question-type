@@ -14,7 +14,7 @@ RUN pip install xgboost
 RUN pip install nltk
 
 # add an alias to make notebook generation easier
-RUN alias notebook="jupyter notebook --ip=127.0.0.1 --port=8080 --NotebookApp.token='' --NotebookApp.password=''"
+RUN echo "alias notebook='jupyter notebook --ip=127.0.0.1 --port=8080 --NotebookApp.token=\"\" --NotebookApp.password=\"\"'" >> /home/vscode/.bashrc
 
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
